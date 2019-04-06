@@ -52,6 +52,7 @@ static NSURLCredential* clientAuthenticationCredential;
     _scrollEnabled = YES;
     _showsHorizontalScrollIndicator = YES;
     _showsVerticalScrollIndicator = YES;
+    _directionalLockEnabled = YES;
     _automaticallyAdjustContentInsets = YES;
     _contentInset = UIEdgeInsetsZero;
   }
@@ -136,12 +137,12 @@ static NSURLCredential* clientAuthenticationCredential;
     _webView.scrollView.bounces = _bounces;
     _webView.scrollView.showsHorizontalScrollIndicator = _showsHorizontalScrollIndicator;
     _webView.scrollView.showsVerticalScrollIndicator = _showsVerticalScrollIndicator;
-
+    _webView.scrollView.directionalLockEnabled = _directionalLockEnabled;
     _refreshControl = [UIRefreshControl new];
     [_refreshControl addTarget:self action:@selector(reload) forControlEvents:UIControlEventValueChanged];
     [_webView.scrollView addSubview:_refreshControl];
-
-      _webView.allowsLinkPreview = _allowsLinkPreview;
+      
+    _webView.allowsLinkPreview = _allowsLinkPreview;
     [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:nil];
     _webView.allowsBackForwardNavigationGestures = _allowsBackForwardNavigationGestures;
 
@@ -357,6 +358,12 @@ static NSURLCredential* clientAuthenticationCredential;
   }
 }
 
+- (void)setDirectionalLockEnabled:(BOOL)directionalLockEnabled
+{
+    _directionalLockEnabled = directionalLockEnabled;
+    _webView.scrollView.directionalLockEnabled = directionalLockEnabled;
+}
+
 - (void)setShowsHorizontalScrollIndicator:(BOOL)showsHorizontalScrollIndicator
 {
     _showsHorizontalScrollIndicator = showsHorizontalScrollIndicator;
@@ -466,8 +473,8 @@ static NSURLCredential* clientAuthenticationCredential;
  * topViewController
  */
 -(UIViewController *)topViewController{
-   UIViewController *controller = [self topViewControllerWithRootViewController:[self getCurrentWindow].rootViewController];
-   return controller;
+   UIViewController *controller = [self topViewControllerWithRootViewController:[self getCurrentWindow].rootViewController];
+   return controller;
 }
 
 /**
@@ -593,6 +600,8 @@ static NSURLCredential* clientAuthenticationCredential;
   }
 
   [self setBackgroundColor: _savedBackgroundColor];
+    
+  [_refreshControl endRefreshing];
 }
 
 - (void)evaluateJS:(NSString *)js
