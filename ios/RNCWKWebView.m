@@ -35,6 +35,7 @@ static NSURLCredential* clientAuthenticationCredential;
 @property (nonatomic, copy) RCTDirectEventBlock onShouldStartLoadWithRequest;
 @property (nonatomic, copy) RCTDirectEventBlock onMessage;
 @property (nonatomic, copy) WKWebView *webView;
+@property (nonatomic, copy) UIRefreshControl *refreshControl;
 @end
 
 @implementation RNCWKWebView
@@ -137,6 +138,10 @@ static NSURLCredential* clientAuthenticationCredential;
     _webView.scrollView.showsHorizontalScrollIndicator = _showsHorizontalScrollIndicator;
     _webView.scrollView.showsVerticalScrollIndicator = _showsVerticalScrollIndicator;
     _webView.scrollView.directionalLockEnabled = _directionalLockEnabled;
+    _refreshControl = [UIRefreshControl new];
+    [_refreshControl addTarget:self action:@selector(reload) forControlEvents:UIControlEventValueChanged];
+    [_webView.scrollView addSubview:_refreshControl];
+      
     _webView.allowsLinkPreview = _allowsLinkPreview;
     [_webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:nil];
     _webView.allowsBackForwardNavigationGestures = _allowsBackForwardNavigationGestures;
@@ -595,6 +600,8 @@ static NSURLCredential* clientAuthenticationCredential;
   }
 
   [self setBackgroundColor: _savedBackgroundColor];
+    
+  [_refreshControl endRefreshing];
 }
 
 - (void)evaluateJS:(NSString *)js
@@ -632,6 +639,7 @@ static NSURLCredential* clientAuthenticationCredential;
   }
 
   [self setBackgroundColor: _savedBackgroundColor];
+  [_refreshControl endRefreshing];
 }
 
 - (void)injectJavaScript:(NSString *)script
